@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("products")
+@PreAuthorize("permitAll()")
 @CrossOrigin
 public class ProductsController
 {
@@ -81,7 +82,7 @@ public class ProductsController
     {
         try
         {
-            productDao.create(product);
+            productDao.update(id, product);
         }
         catch(Exception ex)
         {
