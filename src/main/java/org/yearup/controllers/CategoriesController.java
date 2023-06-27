@@ -1,9 +1,12 @@
 package org.yearup.controllers;
 
+import com.sun.source.tree.TryTree;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.CategoryDao;
 import org.yearup.data.ProductDao;
 import org.yearup.models.Category;
@@ -18,8 +21,7 @@ import java.util.List;
 @RequestMapping("/categories")
 @PreAuthorize("permitAll()")
 @CrossOrigin
-public class CategoriesController
-{
+public class CategoriesController {
     private CategoryDao categoryDao;
     private ProductDao productDao;
 
@@ -33,18 +35,24 @@ public class CategoriesController
 
     // added the appropriate annotation for a get action
     @GetMapping
-    public List<Category> getAll()
-    {
+    public List<Category> getAll() {
         // find and return all categories
         return categoryDao.getAllCategories();
     }
 
     // add the appropriate annotation for a get action
     @GetMapping("/{categoryId}")
-    public Category getById(@PathVariable int id)
-    {
-        // get the category by id
-       return categoryDao.getById(id);
+    public Category getById(@PathVariable("categoryId") int categoryId) {
+        try {
+            Category category = categoryDao.getById(categoryId);
+            if (category == null) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+
+            }
+            return category;
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
+        }
     }
 
     // the url to return all products in category 1 would look like this
@@ -86,9 +94,9 @@ public class CategoriesController
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public void deleteCategory(@PathVariable int id)
+    public void deleteCategory(@PathVariable int categoryId)
     {
-        categoryDao.delete(id);
+        categoryDao.delete(categoryId);
         // delete the category by id
     }
 }
