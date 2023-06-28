@@ -25,6 +25,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
 
         String sql = "SELECT * FROM products " +
                 "WHERE (category_id = ? OR ? = -1) " +
+                "   AND (price >= ? OR ? = -1) " +
                 "   AND (price <= ? OR ? = -1) " +
                 "   AND (color = ? OR ? = '') ";
 
@@ -52,8 +53,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
                 products.add(product);
             }
         }
-        catch (SQLException e)
-        {
+        catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
